@@ -1,0 +1,98 @@
+--1NF investigation
+SELECT *
+FROM transactions;
+
+SELECT COUNT(*)
+FROM transactions;
+--3455
+--Count distinct rows
+SELECT COUNT(*)
+FROM 
+(
+	SELECT DISTINCT*
+	FROM transactions
+) AS ABC;
+--3455 so no duplicates
+
+--Check 2NF
+SELECT *
+FROM transactions;
+
+--2NF Modification
+SELECT *
+FROM transactions;
+--Separate out customer-specific columns
+CREATE TABLE TMP AS
+SELECT CUSTOMERID,
+	FIRSTNAME,
+	SURNAME,
+	SHIPPING_STATE,
+	LOYALTY_DISCOUNT
+FROM transactions;
+--3455 rows
+SELECT *
+FROM TMP;
+---REMOVE DUPLICATES
+CREATE TABLE customers AS
+SELECT DISTINCT *
+FROM TMP;
+
+SELECT *
+FROM customers;
+--2NF confirmed
+
+--Back to transactions table
+SELECT *
+FROM transactions;
+--Remove customer specific columns but leave customer id field, this is needed as a foreign key
+ALTER TABLE transactions
+DROP COLUMN FIRSTNAME,
+DROP COLUMN SURNAME,
+DROP COLUMN SHIPPING_STATE,
+DROP COLUMN LOYALTY_DISCOUNT;
+
+SELECT *
+FROM transactions;
+
+--2NF confirmed
+
+DROP TABLE TMP;
+
+--2 tables conformed to the 2NF
+
+--3NF investigation
+SELECT *
+FROM customers;
+--3NF confirmed
+SELECT *
+FROM transactions;
+
+
+-- Transitive dependancies need to be separated into their own table
+
+CREATE TABLE TMP AS
+SELECT item,
+	description,
+	retail_price
+FROM transactions;
+-3455
+SELECT *
+FROM TMP;
+---REMOVE DUPLICATES to make new table 1NF
+CREATE TABLE items AS
+SELECT DISTINCT *
+FROM TMP;
+--126 rows, check to confirm
+SELECT *
+FROM items;
+--3NF confirmed
+--Now remove extracted rows from transactions table, but keep item as the foreign key
+ALTER TABLE transactions
+DROP COLUMN description,
+DROP COLUMN retail_price;
+
+SELECT *
+FROM transactions;
+--3NF confirmed
+
+DROP TABLE TMP;
